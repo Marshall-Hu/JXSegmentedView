@@ -358,6 +358,14 @@ extension JXPagingView: JXPagingListContainerViewDataSource {
         var list = validListDict[index]
         if list == nil {
             list = delegate.pagingView(self, initListAtIndex: index)
+            
+            //RTL布局
+            if listContainerType == .scrollView,
+               segmentedViewShouldRTLLayout(),
+               let opList = list{
+                segmentedView(horizontalFlipForView: opList.listView())
+            }
+            
             list?.listViewDidScrollCallback {[weak self, weak list] (scrollView) in
                 self?.currentList = list
                 self?.listViewDidScroll(scrollView: scrollView)
@@ -395,5 +403,18 @@ extension JXPagingView: JXPagingListContainerViewDelegate {
         }
     }
 }
-
-
+//MARK: RTL布局
+private extension JXPagingView {
+    
+    /// 根据当前系统布局方式返回是否需要RTL布局
+    func segmentedViewShouldRTLLayout() -> Bool {
+        return UIView.userInterfaceLayoutDirection(for: UIView.appearance().semanticContentAttribute) == .rightToLeft
+    }
+    
+    /// 在RTL布局下水平翻转当前视图
+    /// - Parameter view: 需要翻转的视图
+    func segmentedView(horizontalFlipForView view: UIView?) {
+        view?.transform = CGAffineTransform(scaleX: -1, y: 1)
+    }
+    
+}

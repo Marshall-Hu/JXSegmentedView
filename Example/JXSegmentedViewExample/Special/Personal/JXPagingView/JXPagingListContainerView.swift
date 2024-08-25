@@ -164,9 +164,15 @@ open class JXPagingListContainerView: UIView {
             if #available(iOS 11.0, *) {
                 scrollView.contentInsetAdjustmentBehavior = .never
             }
+            
+            //RTL布局
+            if segmentedViewShouldRTLLayout(){
+                segmentedView(horizontalFlipForView: scrollView)
+            }
+            
             containerVC.view.addSubview(scrollView)
         }else if type == .collectionView {
-            let layout = UICollectionViewFlowLayout()
+            let layout = JXPagingRTLCollectionLayout()
             layout.scrollDirection = .horizontal
             layout.minimumLineSpacing = 0
             layout.minimumInteritemSpacing = 0
@@ -596,4 +602,28 @@ class JXPagingListContainerCollectionView: UICollectionView, UIGestureRecognizer
         }
         return true
     }
+}
+
+//MARK: RTL布局
+private extension JXPagingListContainerView {
+    
+    /// 根据当前系统布局方式返回是否需要RTL布局
+    func segmentedViewShouldRTLLayout() -> Bool {
+        return UIView.userInterfaceLayoutDirection(for: UIView.appearance().semanticContentAttribute) == .rightToLeft
+    }
+    
+    /// 在RTL布局下水平翻转当前视图
+    /// - Parameter view: 需要翻转的视图
+    func segmentedView(horizontalFlipForView view: UIView?) {
+        view?.transform = CGAffineTransform(scaleX: -1, y: 1)
+    }
+    
+}
+
+private class JXPagingRTLCollectionLayout: UICollectionViewFlowLayout {
+
+    override var flipsHorizontallyInOppositeLayoutDirection: Bool {
+        return UIView.userInterfaceLayoutDirection(for: UIView.appearance().semanticContentAttribute) == .rightToLeft
+    }
+
 }
